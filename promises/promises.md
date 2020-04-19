@@ -100,3 +100,69 @@ Inside the success handler we return a new promise— the result of invoking a s
 We invoke a second .then() to handle the logic for the second promise settling.
 Inside that .then(), we have a success handler which will log the second promise’s resolved value to the console.
 In order for our chain to work properly, we had to return the promise secondPromiseFunction(firstResolveVal). This ensured that the return value of the first .then() was our second promise rather than the default return of a new promise with the same settled value as the initial.
+**Avoiding Common Mistakes**
+Promise composition allows for much more readable code than the nested callback syntax that preceded it. However, it can still be easy to make mistakes. In this exercise, we’ll go over two common mistakes with promise composition.
+***Mistake 1: Nesting promises instead of chaining them.***
+returnsFirstPromise()
+.then((firstResolveVal) => {
+  return returnsSecondValue(firstResolveVal)
+    .then((secondResolveVal) => {
+      console.log(secondResolveVal);
+    })
+})
+Let’s break down what’s happening in the above code:
+We invoke returnsFirstPromise() which returns a promise.
+We invoke .then() with a success handler.
+Inside the success handler, we invoke returnsSecondValue() with firstResolveVal which will return a new promise.
+We invoke a second .then() to handle the logic for the second promise settling all inside the first then()!
+Inside that second .then(), we have a success handler which will log the second promise’s resolved value to the console.
+Instead of having a clean chain of promises, we’ve nested the logic for one inside the logic of the other. Imagine if we were handling five or ten promises!
+***Mistake 2: Forgetting to return a promise.***
+returnsFirstPromise()
+.then((firstResolveVal) => {
+  returnsSecondValue(firstResolveVal)
+})
+.then((someVal) => {
+  console.log(someVal);
+})
+Let’s break down what’s happening in the example:
+We invoke returnsFirstPromise() which returns a promise.
+We invoke .then() with a success handler.
+Inside the success handler, we create our second promise, but we forget to return it!
+We invoke a second .then(). It’s supposed to handle the logic for the second promise, but since we didn’t return, this .then() is invoked on a promise with the same settled value as the original promise!
+Since forgetting to return our promise won’t throw an error, this can be a really tricky thing to debug!
+**Using Promise.all()**
+When done correctly, promise composition is a great way to handle situations where asynchronous operations depend on each other or execution order matters. What if we’re dealing with multiple promises, but we don’t care about the order? Let’s think in terms of cleaning again.
+For us to consider our house clean, we need our clothes to dry, our trash bins emptied, and the dishwasher to run. We need all of these tasks to complete but not in any particular order. Furthermore, since they’re all getting done asynchronously, they should really all be happening at the same time!
+To maximize efficiency we should use concurrency, multiple asynchronous operations happening together. With promises, we can do this with the function Promise.all().
+Promise.all() accepts an array of promises as its argument and returns a single promise. That single promise will settle in one of two ways:
+If every promise in the argument array resolves, the single promise returned from Promise.all() will resolve with an array containing the resolve value from each promise in the argument array.
+If any promise from the argument array rejects, the single promise returned from Promise.all() will immediately reject with the reason that promise rejected. This behavior is sometimes referred to as failing fast.
+Let’s look at a code example:
+let myPromises = Promise.all([returnsPromOne(), returnsPromTwo(), returnsPromThree()]);
+myPromises
+  .then((arrayOfValues) => {
+    console.log(arrayOfValues);
+  })
+  .catch((rejectionReason) => {
+    console.log(rejectionReason);
+  });
+Let’s break down what’s happening:
+We declare myPromises assigned to invoking Promise.all().
+We invoke Promise.all() with an array of three promises— the returned values from functions.
+We invoke .then() with a success handler which will print the array of resolved values if each promise resolves successfully.
+We invoke .catch() with a failure handler which will print the first rejection message if any promise rejects.
+
+*** REVIEW ***
+Awesome job! Promises are a difficult concept even for experienced developers, so pat yourself on the back. You’ve learned a ton about asynchronous JavaScript and promises. Let’s review:
+Promises are JavaScript objects that represent the eventual result of an asynchronous operation.
+Promises can be in one of three states: pending, resolved, or rejected.
+A promise is settled if it is either resolved or rejected.
+We construct a promise by using the new keyword and passing an executor function to the Promise constructor method.
+setTimeout() is a Node function which delays the execution of a callback function using the event-loop.
+We use .then() with a success handler callback containing the logic for what should happen if a promise resolves.
+We use .catch() with a failure handler callback containing the logic for what should happen if a promise rejects.
+Promise composition enables us to write complex, asynchronous code that’s still readable. We do this by chaining multiple .then()‘s and .catch()‘s.
+To use promise composition correctly, we have to remember to return promises constructed within a .then().
+We should chain multiple promises rather than nesting them.
+To take advantage of concurrency, we can use Promise.all().
