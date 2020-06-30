@@ -1,6 +1,6 @@
 // XHR GET REQUEST
 // boilerplate code for an AJAX request. //
-//
+
 // // The XMLHttpRequest object is used in JavaScript to create and send requests. 
 // const xhr = new XMLHttpRequest;
 // const url = 'https://api-to-call.com/endpoint';
